@@ -1,7 +1,7 @@
 <?php
 
 function alaus() {
-    return print "salto alaus bokalas";
+    return print "salto alaus bokalas,";
 }
 
 function duona(){
@@ -13,14 +13,8 @@ $array = [
         "duona"
 ];
 
-foreach ($array as $value){
-    if(is_callable(alaus())) {
-        alaus();
-    }
-    if(is_callable(duona())) {
-        duona();
-    }
-    break;
+foreach ($array as $funkcijos_pavadinimas){
+    $funkcijos_pavadinimas();
 }
 
 
