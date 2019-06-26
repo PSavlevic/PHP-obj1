@@ -9,6 +9,7 @@ $form = [
         'first_name' => [
             'label' => 'Vardas:',
             'type' => 'text',
+            'filter' => FILTER_SANITIZE_NUMBER_INT,
             'value' => '',
             'placeholder' => 'Onute'
         ],
@@ -22,15 +23,15 @@ $form = [
 ];
 //parasyti funkcija get_form_input kuri isfiltruotu visas $form fieldu vertes, atejusias i $_POST masyva
 function get_form_input ($form) {
-    $filter_parameters= [];
+   $filter_parameters= [];
     foreach ($form['fields'] as $fields_id => $field) {
-        $filter_parameters= FILTER_SANITIZE_SPECIAL_CHARS;
+        $filter_parameters[$fields_id] = FILTER_SANITIZE_SPECIAL_CHARS;
     }
     return filter_input_array(INPUT_POST, $filter_parameters);
 }
 
-var_dump(get_form_input ($form));
 
+var_dump(get_form_input($form));
 
 ?>
 <!DOCTYPE html>
