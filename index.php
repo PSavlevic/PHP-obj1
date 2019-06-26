@@ -1,5 +1,7 @@
 <?php
 
+
+
 $form = [
     'action' => 'index.php',
     'method' => 'POST',
@@ -18,6 +20,16 @@ $form = [
         ],
     ]
 ];
+//parasyti funkcija get_form_input kuri isfiltruotu visas $form fieldu vertes, atejusias i $_POST masyva
+function get_form_input ($form) {
+    $filter_parameters= [];
+    foreach ($form['fields'] as $fields_id => $field) {
+        $filter_parameters= FILTER_SANITIZE_SPECIAL_CHARS;
+    }
+    return filter_input_array(INPUT_POST, $filter_parameters);
+}
+
+var_dump(get_form_input ($form));
 
 
 ?>
