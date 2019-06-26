@@ -34,9 +34,16 @@ $form = [
 <form action="/<?php print $form['action']; ?>" method="<?php print $form['method']; ?>">
     <label>
         <?php foreach ($form['fields'] as $field_id => $field): ?>
-            <?php print $field['label']; ?> <br>
-            <input type="<?php print $field['type']; ?>" value="<?php print $field['value']; ?>"
+            <?php if (isset($field['label'])): ?>
+                <?php print $field['label']; ?> <br>
+            <?php endif; ?>
+
+            <input type="<?php print $field['type']; ?>"
+                <?php if (isset($field['value'])): ?>
+                    value="<?php print $field['value']; ?>"
+                <?php endif; ?>
                    placeholder="<?php print $field['placeholder']; ?>" name="<?php print $field_id; ?>"><br>
+
         <?php endforeach; ?>
     </label>
     <br> <br>
