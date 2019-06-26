@@ -21,16 +21,24 @@ $form = [
         ],
     ]
 ];
+
+
 //parasyti funkcija get_form_input kuri isfiltruotu visas $form fieldu vertes, atejusias i $_POST masyva
-function get_form_input ($form) {
+function get_form_input ($forma) {
    $filter_parameters= [];
-    foreach ($form['fields'] as $fields_id => $field) {
+    foreach ($forma['fields'] as $fields_id => $field) {
         $filter_parameters[$fields_id] = FILTER_SANITIZE_SPECIAL_CHARS;
+//jei i inputa "vardas" irasysi raides su skaiciais, tai sitas filtras paliks tik skaicius
+        if(isset($field['filter'])){
+            $filter_parameters[$fields_id] = $field['filter'];
+        } else {
+            $filter_parameters[$fields_id] = FILTER_SANITIZE_SPECIAL_CHARS;
+        }
     }
     return filter_input_array(INPUT_POST, $filter_parameters);
 }
 
-
+var_dump($_POST);
 var_dump(get_form_input($form));
 
 ?>
