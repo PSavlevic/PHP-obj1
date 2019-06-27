@@ -1,75 +1,85 @@
 <?php
+//fitravimas
+function get_form_input($form) {
+    $filter_parameters = [];
+    foreach ($form['fields'] as $field_id => $field) {
+        $filter_parameters[$field_id] = FILTER_SANITIZE_SPECIAL_CHARS;
+    }
 
+    return filter_input_array(INPUT_POST, $filter_parameters);
+}
 
+//validatinam, ar yra "fields' arrejuje "validators", jei yra, sukam foreach ir paleidziam jame esamas funkcijas
+function validate_form($safe_input, &$form) {
+    foreach ($form['fields'] as $field_id => &$field){
+        if (isset($field['validators'])){
+            foreach ($field['validators'] as $validator){
+                $validator($safe_input[$field_id], $field);
+            }
+        }
+    }
+}
+
+//validatinam, ar laukelis nera tuscias. Jei tuscias, meta error (i spana) - "laukas tuscias"
+function validate_not_empty($field_input, &$field) {
+    if (strlen($field_input) == 0) {
+        $field['error'] = 'Laukas tuscias';
+    } else {
+        return true;
+    }
+}
 
 $form = [
     'action' => 'index.php',
     'method' => 'POST',
     'fields' => [
         'first_name' => [
-            'label' => 'Vardas:',
+            'label' => 'Vardas',
             'type' => 'text',
+            'value' => '',
+            'validators' => [
+                'validate_not_empty',
+            ],
             'filter' => FILTER_SANITIZE_NUMBER_INT,
-            'value' => '',
-            'placeholder' => 'Onute'
+            'placeholder' => 'Onutė'
         ],
-        'last_name' => [
-            'label' => 'Pavarde:',
+        'second_name' => [
+            'label' => 'Pavardė',
             'type' => 'text',
+            'validators' => [
+                'validate_not_empty',
+            ],
             'value' => '',
-            'placeholder' => 'Kimarinskiene'
-        ],
+            'placeholder' => 'Kimarinskienė'
+        ]
     ]
 ];
 
-
-//parasyti funkcija get_form_input kuri isfiltruotu visas $form fieldu vertes, atejusias i $_POST masyva
-function get_form_input ($forma) {
-   $filter_parameters= [];
-    foreach ($forma['fields'] as $fields_id => $field) {
-        $filter_parameters[$fields_id] = FILTER_SANITIZE_SPECIAL_CHARS;
-//jei i inputa "vardas" irasysi raides su skaiciais, tai sitas filtras paliks tik skaicius
-        if(isset($field['filter'])){
-            $filter_parameters[$fields_id] = $field['filter'];
-        } else {
-            $filter_parameters[$fields_id] = FILTER_SANITIZE_SPECIAL_CHARS;
-        }
-    }
-    return filter_input_array(INPUT_POST, $filter_parameters);
-}
-
-var_dump($_POST);
-var_dump(get_form_input($form));
+$safe_input = get_form_input($form);
+validate_form($safe_input, $form);
 
 ?>
-<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>title</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="css/normalize.css">
-    <link rel="stylesheet" href="css/style.css">
+    <title>06.25</title>
+    <link rel="stylesheet" type="text/css" href="include/normalise.css">
+    <link rel="stylesheet" type="text/css" href="include/style.css">
 </head>
 <body>
-<form action="/<?php print $form['action']; ?>" method="<?php print $form['method']; ?>">
-    <label>
-        <?php foreach ($form['fields'] as $field_id => $field): ?>
-            <?php if (isset($field['label'])): ?>
-                <?php print $field['label']; ?> <br>
-            <?php endif; ?>
+<form action="<?php print $form['action']; ?>" method="<?php print $form['method']; ?>">
+    <?php foreach ($form['fields'] as $key => $input): ?>
+        <?php if (isset($input['label'])): ?>
+            <label for="<?php print $key; ?>"><?php print $input['label']; ?></label>
+        <?php endif; ?>
 
-            <input type="<?php print $field['type']; ?>"
-                <?php if (isset($field['value'])): ?>
-                    value="<?php print $field['value']; ?>"
-                <?php endif; ?>
-                   placeholder="<?php print $field['placeholder']; ?>" name="<?php print $field_id; ?>"><br>
-
-        <?php endforeach; ?>
-    </label>
-    <br> <br>
-    <button name="action" value="save">Save</button>
+        <input name="<?php print $key; ?>" type="<?php print $input['type']; ?>" placeholder="<?php print $input['placeholder']; ?>">
+        <?php if (isset($input['error'])): ?>
+            <span class="error"><?php print $input['error']; ?></span>
+        <?php endif; ?>
+    <?php endforeach; ?>
+    <!-- TO DO -->
+    <button>Submit</button>
 </form>
-
 </body>
 </html>
