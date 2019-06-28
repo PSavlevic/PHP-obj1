@@ -1,29 +1,63 @@
 <?php
 //fitravimas
-function get_form_input($form) {
+function get_form_input($form)
+{
     $filter_parameters = [];
     foreach ($form['fields'] as $field_id => $field) {
         $filter_parameters[$field_id] = FILTER_SANITIZE_SPECIAL_CHARS;
     }
-
     return filter_input_array(INPUT_POST, $filter_parameters);
 }
 
 //validatinam, ar yra "fields' arrejuje "validators", jei yra, sukam foreach ir paleidziam jame esamas funkcijas
-function validate_form($safe_input, &$form) {
-    foreach ($form['fields'] as $field_id => &$field){
-        if (isset($field['validators'])){
-            foreach ($field['validators'] as $validator){
-                $validator($safe_input[$field_id], $field);
+function validate_form($safe_input, &$form)
+{
+    $success = true;
+    foreach ($form['fields'] as $field_id => &$field) {
+        if (isset($field['validators'])) {
+            foreach ($field['validators'] as $validator) {
+                $is_valid = $validator($safe_input[$field_id], $field);
+                if (!$is_valid) {
+                    $success = false;
+                    break;
+                }
             }
         }
     }
 }
 
 //validatinam, ar laukelis nera tuscias. Jei tuscias, meta error (i spana) - "laukas tuscias"
-function validate_not_empty($field_input, &$field) {
+function validate_not_empty($field_input, &$field)
+{
     if (strlen($field_input) == 0) {
         $field['error'] = 'Laukas tuscias';
+    } else {
+        return true;
+    }
+}
+
+function validate_is_number($field_input, &$field)
+{
+    if (!is_numeric($field_input)) {
+        $field['error'] = 'Iveskite skaiciu';
+    } else {
+        return true;
+    }
+}
+
+function validate_is_positive($field_input, &$field)
+{
+    if ($field_input < 0) {
+        $field['error'] = 'Iveskite pozitivu skaiciu';
+    } else {
+        return true;
+    }
+}
+
+function validate_max_100($field_input, &$field)
+{
+    if ($field_input > 100) {
+        $field['error'] = 'Iveskite skaiciu iki 100';
     } else {
         return true;
     }
@@ -51,13 +85,23 @@ $form = [
             ],
             'value' => '',
             'placeholder' => 'Kimarinskienė'
+        ],
+        'age' => [
+            'label' => 'Amzius',
+            'type' => 'text',
+            'validators' => [
+                'validate_not_empty',
+                'validate_is_number',
+                'validate_is_positive',
+                'validate_max_100',
+            ],
+            'value' => '',
+            'placeholder' => 'Amzius'
         ]
     ]
 ];
-
 $safe_input = get_form_input($form);
 validate_form($safe_input, $form);
-
 ?>
 <html>
 <head>
@@ -73,7 +117,8 @@ validate_form($safe_input, $form);
             <label for="<?php print $key; ?>"><?php print $input['label']; ?></label>
         <?php endif; ?>
 
-        <input name="<?php print $key; ?>" type="<?php print $input['type']; ?>" placeholder="<?php print $input['placeholder']; ?>">
+        <input name="<?php print $key; ?>" type="<?php print $input['type']; ?>"
+               placeholder="<?php print $input['placeholder']; ?>">
         <?php if (isset($input['error'])): ?>
             <span class="error"><?php print $input['error']; ?></span>
         <?php endif; ?>
