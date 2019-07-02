@@ -1,4 +1,5 @@
 <?php
+require 'functions/file.php';
 $form = [
     'action' => 'index.php',
     'method' => 'POST',
@@ -39,13 +40,11 @@ $form = [
         'fail' => 'form_fail'
     ]
 ];
-
-
-
 //filtered
-function get_form_input($form) {
+function get_form_input($form)
+{
     $parameters = [];
-    foreach ($form['fields'] as $field_id => $field){
+    foreach ($form['fields'] as $field_id => $field) {
         $parameters[$field_id] = FILTER_SANITIZE_SPECIAL_CHARS;
     }
     return filter_input_array(INPUT_POST, $parameters);
@@ -53,23 +52,23 @@ function get_form_input($form) {
 
 $safe_input = get_form_input($form);
 validate_form($safe_input, $form);
-
-function validate_form($safe_input, &$form){
+function validate_form($safe_input, &$form)
+{
     $success = true;
-    foreach ($form['fields'] as $field_id => &$field){
+    foreach ($form['fields'] as $field_id => &$field) {
         $field_value = $safe_input[$field_id];
         $field['value'] = $field_value;
-        if(isset($field['validator'])){
-            foreach ($field['validator'] as $validator){
+        if (isset($field['validator'])) {
+            foreach ($field['validator'] as $validator) {
                 $is_valid = $validator($safe_input[$field_id], $field);
-                if(!$is_valid){
+                if (!$is_valid) {
                     $success = false;
                     break;
                 }
             }
         }
     }
-    if($success) {
+    if ($success) {
         $form['callbacks']['success']($safe_input, $form);
     } else {
         $form['callbacks']['fail']($safe_input, $form);
@@ -77,46 +76,62 @@ function validate_form($safe_input, &$form){
     return $success;
 }
 
-function form_success($safe_input, &$form) {
-    $array = json_encode($safe_input) . "\r\n";
-    file_put_contents('info.txt', $array, FILE_APPEND);
+function form_success($safe_input, &$form)
+{
+    $new_data = [];
+    $old_data = file_to_array('info.txt');
+
+    if (!empty($old_data)) {
+        $new_data = $old_data;
+    }
+
+    $new_data[] = $safe_input;
+    array_to_file($new_data, 'info.txt');
 }
 
-function form_fail($safe_input, &$form) {
+function form_fail($safe_input, &$form)
+{
     print 'blogai';
 }
 
-function validate_not_empty($safe_input, &$field) {
-    if(strlen($safe_input) == 0){
+function validate_not_empty($safe_input, &$field)
+{
+    if (strlen($safe_input) == 0) {
         $field['error'] = 'laukelis tuscias';
     } else {
         return true;
     }
 }
 
-    function validate_is_number($safe_input, &$field){
-    if(!is_numeric($safe_input)) {
+function validate_is_number($safe_input, &$field)
+{
+    if (!is_numeric($safe_input)) {
         $field['error'] = 'iveskit skaiciu';
     } else {
         return true;
     }
-    }
+}
 
-    function validate_is_positive($field_input, &$field){
-        if ($field_input <= 0) {
-            $field['error'] = 'Iveskite teigiama skaiciu';
-        } else {
-            return true;
-        }
+function validate_is_positive($field_input, &$field)
+{
+    if ($field_input <= 0) {
+        $field['error'] = 'Iveskite teigiama skaiciu';
+    } else {
+        return true;
     }
+}
 
-function validate_max_100($field_input, &$field){
+function validate_max_100($field_input, &$field)
+{
     if ($field_input > 100) {
         $field['error'] = 'Iveskite skaiciu iki 100';
     } else {
         return true;
     }
 }
+
+$data = file_to_array('info.txt');
+
 
 ?>
 <html>
@@ -145,5 +160,14 @@ function validate_max_100($field_input, &$field){
     <?php endforeach; ?>
     <button name="mygtukas">Siusti</button>
 </form>
+<table>
+    <?php foreach ($data as $row): ?>
+        <tr>
+            <?php foreach ($row as $td_column): ?>
+                <td><?php print $td_column; ?></td>
+            <?php endforeach; ?>
+        </tr>
+    <?php endforeach; ?>
+</table>
 </body>
 </html>
