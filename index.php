@@ -24,7 +24,7 @@ $form = [
         ],
         'age' => [
             'label' => 'amzius:',
-            'type' => 'number',
+            'type' => 'text',
             'value' => '',
             'placeholder' => '',
             'validator' => [
@@ -52,6 +52,11 @@ function get_form_input($form)
 
 $safe_input = get_form_input($form);
 validate_form($safe_input, $form);
+
+if ($safe_input) {
+    validate_form($safe_input, $form);
+}
+
 function validate_form($safe_input, &$form)
 {
     $success = true;
@@ -69,9 +74,13 @@ function validate_form($safe_input, &$form)
         }
     }
     if ($success) {
-        $form['callbacks']['success']($safe_input, $form);
+        if (isset($form['callbacks']['success'])) {
+            $form['callbacks']['success']($safe_input, $form);
+        }
     } else {
-        $form['callbacks']['fail']($safe_input, $form);
+        if (isset($form['callbacks']['fail'])) {
+            $form['callbacks']['fail']($safe_input, $form);
+        }
     }
     return $success;
 }
@@ -131,6 +140,10 @@ function validate_max_100($field_input, &$field)
 }
 
 $data = file_to_array('info.txt');
+if (!$data) {
+    $data = [];
+}
+
 
 
 ?>
@@ -161,6 +174,11 @@ $data = file_to_array('info.txt');
     <button name="mygtukas">Siusti</button>
 </form>
 <table>
+    <tr>
+        <th>Vardas</th>
+        <th>Pavarde</th>
+        <th>Amzius</th>
+    </tr>
     <?php foreach ($data as $row): ?>
         <tr>
             <?php foreach ($row as $td_column): ?>
