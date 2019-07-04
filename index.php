@@ -1,15 +1,15 @@
 <?php
-
-//setcookie("COOKIE_NAME", "COOKIE_VALUE", time() + 500, "/");
-//
-//var_dump($_COOKIE);
-
-
 require 'functions/file.php';
-
+function delete_all_cookies() {
+    foreach ($_COOKIE as $cookie_key => $cookie_value) {
+        setcookie($cookie_key, null, -1, "/");
+    }
+}
+function get_form_action() {
+    return filter_input(INPUT_POST, 'action', FILTER_SANITIZE_SPECIAL_CHARS);
+}
 function get_form_input($form) {
     $filter_parameters = [];
-
     foreach ($form['fields'] as $field_id => $field) {
         if (isset($field['filter'])) {
             $filter_parameters[$field_id] = $field['filter'];
@@ -17,10 +17,8 @@ function get_form_input($form) {
             $filter_parameters[$field_id] = FILTER_SANITIZE_SPECIAL_CHARS;
         }
     }
-
     return filter_input_array(INPUT_POST, $filter_parameters);
 }
-
 function validate_form($filtered_input, &$form) {
     $success = true;
     foreach ($form['fields'] as $field_id => &$field) {
@@ -35,7 +33,6 @@ function validate_form($filtered_input, &$form) {
             }
         }
     }
-
     if ($success) {
         if (isset($form['callbacks']['success'])) {
             $form['callbacks']['success']($filtered_input, $form);
@@ -45,10 +42,8 @@ function validate_form($filtered_input, &$form) {
             $form['callbacks']['fail']($filtered_input, $form);
         }
     }
-
     return $success;
 }
-
 function form_success($filtered_input, &$form) {
     $new_data = [];
     $old_data = file_to_array('info.txt');
@@ -57,18 +52,17 @@ function form_success($filtered_input, &$form) {
     }
     $new_data[] = $filtered_input;
     array_to_file($new_data, 'info.txt');
+    setcookie('form', true, time() + 3600, '/');
+    $_COOKIE['form'] = true;
 }
-
 //Kitas budas:
 //function form_success($filtered_input, &$form) {
 //    $encoded_filtered_input = json_encode($filtered_input) . "\r\n";
 //    file_put_contents('info.txt', $encoded_filtered_input, FILE_APPEND);
 //}
-
 function form_fail($filtered_input, &$form) {
     print 'Nepavyko įrašyti informacijos į failą.';
 }
-
 function validate_not_empty($field_input, &$field) {
     if (strlen($field_input) == 0) {
         $field['error'] = 'Laukas tuščias';
@@ -76,7 +70,6 @@ function validate_not_empty($field_input, &$field) {
         return true;
     }
 }
-
 function validate_is_number($field_input, &$field) {
     if (!is_numeric($field_input)) {
         $field['error'] = 'Įveskite skaičių!';
@@ -84,7 +77,6 @@ function validate_is_number($field_input, &$field) {
         return true;
     }
 }
-
 function validate_is_positive($field_input, &$field) {
     if ($field_input < 0) {
         $field['error'] = 'Įveskite teigiamą skaičių.';
@@ -92,7 +84,6 @@ function validate_is_positive($field_input, &$field) {
         return true;
     }
 }
-
 function validate_max_100($field_input, &$field) {
     if ($field_input > 100) {
         $field['error'] = 'Tiek žmonės negyvena.';
@@ -100,9 +91,8 @@ function validate_max_100($field_input, &$field) {
         return true;
     }
 }
-
 $form = [
-    'action' => 'index.php',
+    'action' => '',
     'method' => 'POST',
     'fields' => [
         'first_name' => [
@@ -123,62 +113,47 @@ $form = [
             'value' => '',
             'placeholder' => 'Įveskite pavardę.'
         ],
-        'third_name' => [
-            'label' => 'Pravardė',
-            'type' => 'text',
-            'validators' => [
-                'validate_not_empty',
-            ],
-            'value' => '',
-            'placeholder' => 'Įveskite pravardę.'
+    ],
+    'buttons' => [
+        'submit' => [
+            'type' => 'button',
+            'title' => 'Submit',
         ],
-        'age' => [
-            'label' => 'Amžius',
-            'type' => 'text',
-            'validators' => [
-                'validate_not_empty',
-                'validate_is_number',
-                'validate_is_positive',
-                'validate_max_100'
-            ],
-            'value' => '',
-            'placeholder' => 'Įveskite amžių.'
-        ],
-        'digit' => [
-            'label' => 'Telefono numeris',
-            'type' => 'text',
-            'placeholder' => 'only digits...',
-            'value' => '',
-            'filter' => FILTER_SANITIZE_NUMBER_INT,
-        ],
+        'reset' => [
+            'type' => 'button',
+            'title' => 'Istrinti Cookies'
+        ]
     ],
     'callbacks' => [
         'success' => 'form_success',
         'fail' => 'form_fail'
     ]
 ];
-
 $filtered_input = get_form_input($form);
-$th_foreach = [];
-
-if ($filtered_input) {
-    validate_form($filtered_input, $form);
-    $th_foreach = show_th($form);
+$filtered_action = get_form_action();
+switch (get_form_action()) {
+    case 'submit':
+        $success = validate_form($filtered_input, $form);
+        if ($success) {
+            $form['fields'] = [];
+            unset($form['buttons']['submit']);
+        }
+        break;
+    case 'reset':
+        delete_all_cookies();
+        break;
 }
-
-$data = file_to_array('info.txt');
-if (!$data) {
-    $data = [];
-};
-
-function show_th($formos_array) {
+function get_table_headers($formos_array) {
     $th_array = [];
-    foreach($formos_array['fields'] as $field_id => $field){
+    foreach ($formos_array['fields'] as $field_id => $field) {
         $th_array[] = $field['label'];
     }
     return $th_array;
 }
-
+$table = [
+    'headers' => get_table_headers($form),
+    'rows' => file_to_array('info.txt')
+];
 ?>
 <html>
 <head>
@@ -198,27 +173,39 @@ function show_th($formos_array) {
                type="<?php print $input['type']; ?>"
                placeholder="<?php print $input['placeholder']; ?>"
                value="<?php print $input['value']; ?>">
+
         <?php if (isset($input['error'])): ?>
             <span class="error"><?php print $input['error']; ?></span>
         <?php endif; ?>
+
     <?php endforeach; ?>
-    <button>Siusti</button>
+    <?php foreach ($form['buttons'] as $button_key => $button): ?>
+        <button name="action" value="<?php print $button_key; ?>">
+            <?php print $button['title']; ?>
+        </button>
+    <?php endforeach; ?>
 </form>
-<table>
-    <tr>
-        <?php foreach ($th_foreach as $th): ?>
-            <th><?php print $th; ?></th>
+<?php if (!empty($_COOKIE)): ?>
+    <table>
+        <thead>
+        <?php foreach ($table['headers'] as $header): ?>
+            <th><?php print $header; ?></th>
         <?php endforeach; ?>
-    </tr>
-    <?php foreach ($data as $row): ?>
-        <tr>
-            <?php foreach ($row as $column): ?>
-                <td>
-                    <?php print $column; ?>
-                </td>
+        </thead>
+        <tbody>
+        <?php if ($table['rows']): ?>
+            <?php foreach ($table['rows'] as $row): ?>
+                <tr>
+                    <?php foreach ($row as $column): ?>
+                        <td>
+                            <?php print $column; ?>
+                        </td>
+                    <?php endforeach; ?>
+                </tr>
             <?php endforeach; ?>
-        </tr>
-    <?php endforeach; ?>
-</table>
+        <?php endif; ?>
+        </tbody>
+    </table>
+<?php endif; ?>
 </body>
 </html>
