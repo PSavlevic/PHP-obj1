@@ -91,7 +91,8 @@ body {
     background: #6dc320;
 }
 
-/* ### Other Styles ### */
+/* ### Message Box ### */
+
 .message {
     position: absolute;
     top: 5%;
@@ -122,6 +123,8 @@ body {
 .message span.close:hover {
     font-weight: bold;
 }
+
+/* ### Navigation ### */
 
 .nav-wrapper {
     background: #616161;

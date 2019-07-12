@@ -3,7 +3,7 @@
 require 'validators.php';
 
 /**
- * Sanitizes submitted form data
+ * Sanitizes submitted form fields
  * @param array $form
  * @return array sanitized (filtered) data
  */
@@ -22,7 +22,7 @@ function get_form_input($form) {
 }
 
 /**
- * Sanitizes submitted button data
+ * Sanitizes submitted form action (button) value
  * @return string
  */
 function get_form_action() {

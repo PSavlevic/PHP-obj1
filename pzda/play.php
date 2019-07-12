@@ -5,6 +5,8 @@ require 'functions/file.php';
 require 'functions/html/builder.php';
 require 'functions/form/core.php';
 
+
+
 $nav = [
     [
         'url' => '/pzda/index.php',
@@ -25,61 +27,22 @@ $nav = [
 ];
 
 
+
 $form = [
     'attr' => [
-        //'action' => '', Neb8tina, jeigu action yra ''
+        //'action' => '', Nebūtina, jeigu action yra ''
         'method' => 'POST',
     ],
-    'fields' => [
-        'test_input' => [
-            'label' => 'Test Field',
-            'type' => 'text',
-            'extra' => [
-                'attr' => [
-                    'class' => 'my-test-field',
-                    'placeholder' => 'This is a Test Field'
-                ],
-                'validators' => [
-                    'validate_not_empty'
-                ]
-            ],
-        ],
-        'test_select' => [
-            'type' => 'select',
-            'label' => 'It`s Time To Choose',
-            'value' => 1, // Koreliuoja su options pasirinkimo indeksu
-            'options' => [
-                'Inferno',
-                'De-Dust 2',
-                'Militia'
-            ],
-            'extra' => [
-                'attr' => [
-                    'class' => 'my-select-field',
-                ],
-                'validators' => [
-                    'validate_not_empty'
-                ]
-            ]
-        ]
-    ],
+    'fields' => [],
     'buttons' => [
-        'create' => [
-            'title' => 'OK',
-            'extra' => [
-                'attr' => [
-                    'class' => 'blue-btn'
-                ]
-            ]
-        ],
-        'delete' => [
-            'title' => 'NO',
+        'kick' => [
+            'title' => 'Kick the ball',
             'extra' => [
                 'attr' => [
                     'class' => 'red-btn'
                 ]
             ]
-        ]
+        ],
     ],
     'callbacks' => [
         'success' => 'form_success',
@@ -87,21 +50,60 @@ $form = [
     ]
 ];
 
+function validate_player($field_input, &$field) {
+    $file_data = file_to_array(STORAGE_FILE);
+    if ($file_data) {
+        foreach ($file_data as $team_id => $team) {
+            if (in_array($field_input, $team['players'])) {
+                $field['error'] = 'Toks zaidejas jau yra!';
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+function get_team_names() {
+    $komandos = [];
+    $file_data = file_to_array(STORAGE_FILE);
+    if ($file_data) {
+        foreach ($file_data as $team_id => $team) {
+            $komandos[] = $team['team_name'];
+        }
+    }
+    return $komandos;
+}
+
 function form_fail($filtered_input, &$form) {
-    var_dump('Form failed!');
+//    var_dump('Form failed!');
 }
 
 function form_success($filtered_input, &$form) {
-    var_dump('Form succeeded!');
+    $teams = file_to_array(STORAGE_FILE);
+    if($teams){
+        $decoded_player_array = json_decode($_COOKIE[PLAYER_COOKIE], true);
+        $player_team_index = $decoded_player_array['team_index'];
+//        $player_index = $decoded_player_array['player_index'];
+        $team = &$teams[$player_team_index];
+        $team['score'] += 1;
+        array_to_file($teams, STORAGE_FILE);
+        var_dump($team);
+    }
 }
 
+if (!empty($_COOKIE[PLAYER_COOKIE])) {
+
 // Get all data from $_POST
-$input = get_form_input($form);
+    $action = get_form_action($form);
 
 // If any data was entered, validate the input
-if (!empty($input)) {
-    $success = validate_form($input, $form);
-    $message = $success ? 'Cool!' : 'Not Cool!';
+    if ($action == 'kick') {
+        $success = validate_form([], $form);
+        $message = $success ? 'Nauja komanda sukurta' : 'Klaida!';
+    }
+} else {
+    $form = [];
+    $message = 'Tu jau prisireginai!';
 }
 ?>
 <html>

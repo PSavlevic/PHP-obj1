@@ -5,22 +5,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-function validate_team_name($field_input, &$field) {
-    if (file_exists('data/text.txt')) {
-        $teams = file_to_array('data/text.txt');
-        if (!empty($teams)) {
-            foreach ($teams as $team) {
-                if ($team['team_name'] == $field_input) {
-                    $field['error'] = 'Team already exists!';
-                    return null;
-                } else {
-                    $field['error'] = 'Team added!';
-                }
-            }
-        }
-    }
-    return true;
-}
+
 
 function validate_not_empty($field_input, &$field) {
     if (strlen($field_input) == 0) {

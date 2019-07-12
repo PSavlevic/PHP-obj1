@@ -24,62 +24,51 @@ $nav = [
     ],
 ];
 
+$komandu_array = get_team_names();
 
 $form = [
     'attr' => [
-        //'action' => '', Neb8tina, jeigu action yra ''
+        //'action' => '', Nebūtina, jeigu action yra ''
         'method' => 'POST',
     ],
     'fields' => [
-        'test_input' => [
-            'label' => 'Test Field',
+        'player_name' => [
+            'label' => 'Enter Player name',
             'type' => 'text',
             'extra' => [
                 'attr' => [
-                    'class' => 'my-test-field',
-                    'placeholder' => 'This is a Test Field'
+                    'placeholder' => 'Enter Name'
                 ],
                 'validators' => [
-                    'validate_not_empty'
+                    'validate_not_empty',
+                    'validate_player'
                 ]
             ],
         ],
-        'test_select' => [
+        'team_select' => [
             'type' => 'select',
-            'label' => 'It`s Time To Choose',
+            'label' => 'Pasirink komanda',
             'value' => 1, // Koreliuoja su options pasirinkimo indeksu
-            'options' => [
-                'Inferno',
-                'De-Dust 2',
-                'Militia'
-            ],
+            'options' => $komandu_array,
             'extra' => [
                 'attr' => [
-                    'class' => 'my-select-field',
+                    'class' => 'team-select-field',
                 ],
                 'validators' => [
                     'validate_not_empty'
                 ]
             ]
-        ]
+        ],
     ],
     'buttons' => [
-        'create' => [
-            'title' => 'OK',
-            'extra' => [
-                'attr' => [
-                    'class' => 'blue-btn'
-                ]
-            ]
-        ],
-        'delete' => [
-            'title' => 'NO',
+        'join' => [
+            'title' => 'Join team',
             'extra' => [
                 'attr' => [
                     'class' => 'red-btn'
                 ]
             ]
-        ]
+        ],
     ],
     'callbacks' => [
         'success' => 'form_success',
@@ -87,21 +76,66 @@ $form = [
     ]
 ];
 
+function validate_player($field_input, &$field) {
+    $file_data = file_to_array(STORAGE_FILE);
+    if ($file_data) {
+        foreach ($file_data as $team_id => $team) {
+            if (in_array($field_input, $team['players'])) {
+                $field['error'] = 'Toks zaidejas jau yra!';
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+function get_team_names() {
+    $komandos = [];
+    $file_data = file_to_array(STORAGE_FILE);
+    if ($file_data) {
+        foreach ($file_data as $team_id => $team) {
+            $komandos[] = $team['team_name'];
+        }
+    }
+    return $komandos;
+}
+
 function form_fail($filtered_input, &$form) {
-    var_dump('Form failed!');
+//    var_dump('Form failed!');
 }
 
 function form_success($filtered_input, &$form) {
-    var_dump('Form succeeded!');
+    $data = [];
+    $file_data = file_to_array(STORAGE_FILE);
+    if ($file_data) {
+        $data = $file_data;
+    }
+    $team_index = $filtered_input['team_select'];
+    $team = &$file_data[$team_index];
+    $team["players"][] = $filtered_input['player_name'];
+    array_to_file($file_data, STORAGE_FILE);
+    $player_data = json_encode([
+        'name' => count($team['players']) - 1,
+        'team_index' => $team_index
+    ]);
+    setcookie(PLAYER_COOKIE, $player_data, time() + 3600, '/');
+//    $_COOKIE[PLAYER_COOKIE] = $player_data;
+//    header('Location: /play.php');
 }
 
+if (empty($_COOKIE[PLAYER_COOKIE])) {
+
 // Get all data from $_POST
-$input = get_form_input($form);
+    $input = get_form_input($form);
 
 // If any data was entered, validate the input
-if (!empty($input)) {
-    $success = validate_form($input, $form);
-    $message = $success ? 'Cool!' : 'Not Cool!';
+    if (!empty($input)) {
+        $success = validate_form($input, $form);
+        $message = $success ? 'Nauja komanda sukurta' : 'Klaida!';
+    }
+} else {
+    $form = [];
+    $message = 'Tu jau prisireginai!';
 }
 ?>
 <html>
