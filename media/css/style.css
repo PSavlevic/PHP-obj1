@@ -1,0 +1,141 @@
+@font-face {
+    font-family: 'manrope';
+    src: url('/media/css/fonts/manrope-light.woff2') format('woff2'), /* Super Modern Browsers */
+        url('/media/css/fonts/manrope-light.woff') format('woff') /* Pretty Modern Browsers */
+}
+
+body {
+    font-family: 'manrope';
+    color: #333333;
+}
+
+/* ### Form Styles ### */
+
+.form-wrapper {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: calc(100vh - 40px);
+    padding: 10px 0;
+}
+
+.form-wrapper form {
+    width: 300px;
+    border: 1px solid #bfbfbf;
+    background: #f5f5f5;
+    padding: 20px;
+}
+.form-wrapper label span {
+    margin: 5px 0;
+    display: block;
+}
+
+.form-wrapper .field-wrapper {
+    margin: 14px 0;
+}
+
+.form-wrapper .field-wrapper input {
+    width: 100%;
+    color: #333333;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+.form-wrapper .field-wrapper select {
+    color: #333333;
+    padding: 5px;
+    box-sizing: border-box;  
+    font-weight: bold;
+    width: 50%;
+}
+
+.form-wrapper .field-error {
+    margin: 4px 0;
+    font-size: small;
+    color: red;    
+}
+
+.form-wrapper .button-wrapper {
+    border-top: 1px solid #bfbfbf;
+    padding-top: 10px;
+    text-align: center;
+}
+
+.form-wrapper .button-wrapper button {
+    display: inline-block;
+    padding: 5px;
+    margin: 5px;
+    min-width: 30%;
+    background: #8a8a8a;
+    box-shadow: 1px 1px 2px 1px #cacaca;
+    color: white;
+    font-weight: bold;
+    border: 2px solid #6b6b6b;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.form-wrapper .button-wrapper button:hover {
+    border: 2px solid white;
+}
+
+.form-wrapper .button-wrapper button.blue-btn:hover {
+    background: #6e94ea;
+}
+
+.form-wrapper .button-wrapper button.red-btn:hover {
+    background: #ff5353;
+}
+
+.form-wrapper .button-wrapper button.green-btn:hover {
+    background: #6dc320;
+}
+
+/* ### Message Box ### */
+
+.message {
+    position: absolute;
+    top: 5%;
+    left: 5%;
+    padding: 20px;
+    background: #d8d8d8;
+    min-width: 150px;
+    border-radius: 5px;
+    margin: 10px;
+}
+
+.message span.text {
+    border-radius: 5px;
+    background: white;
+    font-weight: bold;
+    padding: 5px;
+}
+
+.message span.close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    cursor: pointer;
+    background: rgba(255,255,255,0.6);
+    padding: 2px;
+}
+
+.message span.close:hover {
+    font-weight: bold;
+}
+
+/* ### Navigation ### */
+
+.nav-wrapper {
+    background: #616161;
+    display: flex;
+    justify-content: flex-start; 
+}
+
+.nav-wrapper a {
+    display: block;
+    padding: 10px;
+    background: white;
+    text-align: center;
+    font-weight: bold;
+}
