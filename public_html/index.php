@@ -13,7 +13,12 @@ require '../config.php';
         <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
         <link rel="icon" href="favicon.ico" type="image/x-icon">        
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>    
-        <script src="media/js/app.js"></script>    
+        <script src="media/js/app.js"></script>
+        <style>
+            table {
+                border: 1px solid black;
+            }
+        </style>
     </head>
     <body>
         <!-- $nav Navigation generator -->

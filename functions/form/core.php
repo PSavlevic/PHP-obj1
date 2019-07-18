@@ -54,15 +54,18 @@ function validate_form($filtered_input, &$form) {
     }
 
     if ($success) {
-        foreach ($form['validators'] ?? [] as $validator) {
-            $is_valid = $validator($filtered_input, $form['fields'], $form);
+        foreach ($form['validators'] ?? [] as $validator_id => $validator) {
+            if (is_array($validator)) {
+                $is_valid = $validator_id($validator, $filtered_input, $form['fields'], $form);
+            } else {
+                $is_valid = $validator($filtered_input, $form['fields'], $form);
+            }
             if (!$is_valid) {
                 $success = false;
                 break;
             }
         }
     }
-
 
     if ($success) {
         if (isset($form['callbacks']['success'])) {

@@ -7,24 +7,21 @@ define('STORAGE_FILE', ROOT . '/data/text.txt');
 define('PLAYER_COOKIE', 'player');
 
 $nav = [
-        [
-        'url' => '/',
+    [
+        'url' => '/4uzd.php',
         'title' => 'Home'
     ],
-        [
-        'url' => '/create.php',
-        'title' => 'Create'
+    [
+        'url' => '/2uzd.php',
+        'title' => 'Registracija'
     ],
-        [
-        'url' => '/join.php',
-        'title' => 'Joint'
+    [
+        'url' => '/login.php',
+        'title' => 'login'
     ],
-        [
-        'url' => '/play.php',
-        'title' => 'Play'
+    [
+        'url' => '/logout.php',
+        'title' => 'Logout'
     ],
-        [
-        'url' => '/scoreboard.php',
-        'title' => 'Scoreboard'
-    ]
+
 ];

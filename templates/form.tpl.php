@@ -14,7 +14,7 @@
                             </span>
                         <?php endif; ?>
 
-                        <?php if (in_array($field['type'], ['text', 'number', 'email', 'hidden'])): ?>
+                        <?php if (in_array($field['type'], ['text', 'number', 'email', 'hidden', 'password'])): ?>
                             <?php require 'form/input.tpl.php'; ?>
                         <?php elseif ($field['type'] === 'select'): ?>
                             <?php require 'form/select.tpl.php'; ?>

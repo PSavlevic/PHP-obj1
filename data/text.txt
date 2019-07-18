@@ -1,1 +1,1 @@
-[{"team_name":"Tevassaa","players":[],"score":0}]
+[{"first":"Vytenis","last":"Merkys","email":"vytenis@vytenis.lt","pass":"qwerty"},{"first":"Pavel","last":"Savlevic","email":"asd@asd.lt","pass":"12345"}]

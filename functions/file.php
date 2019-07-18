@@ -1,15 +1,16 @@
 <?php
 
 /**
- * Saves array to file
- * @param type array. $array - array we want to convert
- * @param type file. $file_name - file into where we want to save
+ * Saves array to JSON file
+ * @param array $safe_input
+ * @param string $filename
  * @return boolean
  */
-function array_to_file($array, $file_name) {
-    $array_encode_to_jason_string = json_encode($array);
-    $success = file_put_contents($file_name, $array_encode_to_jason_string); //$success atiduoda irasyta baitu skaiciu arba false
-    if ($success !== FALSE) {
+function array_to_file($filtered_input, $filename) {
+    $string = json_encode($filtered_input);
+    $file = file_put_contents($filename, $string);
+
+    if ($file !== false) {
         return true;
     } else {
         return false;
@@ -17,18 +18,19 @@ function array_to_file($array, $file_name) {
 }
 
 /**
- * Decoding array from file
- * @param type file. $file_name - file we get data from
+ * Decodes JSON array file to string
+ * @param string $filename
  * @return array|boolean
  */
-function file_to_array($file_name) {
-    if (file_exists($file_name)) {
-        $encoded_string = file_get_contents($file_name);
+function file_to_array($filename) {
+    if (file_exists($filename)) {
+        $encoded_string = file_get_contents($filename);
+
         if ($encoded_string !== false) {
             return json_decode($encoded_string, true);
-        } else {
-            return false;
-        }
+        }    
     }
+    
+    return false;
 }
- ?>
+
